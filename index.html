@@ -10,6 +10,19 @@
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
 
+  <!-- Progressive Web App (PWA) Meta & Icons for Mobile Phone Installation -->
+  <meta name="theme-color" content="#0b0f19" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FlagsBattle" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/pwa-512x512.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+
   <!-- Google Fonts: Montserrat & Oswald for Authentic Stream Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,6 +61,12 @@
           <span class="title-main">RESPAWN TAHMID</span>
           <span class="title-accent">FLAGS BATTLE</span>
         </div>
+
+        <!-- In-App PWA Install Trigger -->
+        <button class="install-pill-btn" id="btn-pwa-install-header" title="Install Flags Battle on your phone">
+          <span class="install-icon">📲</span>
+          <span class="install-text">INSTALL APP</span>
+        </button>
 
         <div class="badge-group">
           <!-- Total Countries Pill -->
@@ -250,7 +269,7 @@
           <button class="tool-btn" id="btn-toggle-chat-sim">🤖 Sim Chat: ON</button>
           <button class="tool-btn" id="btn-force-shield">🛡️ Shield Top</button>
           <button class="tool-btn" id="btn-speed-toggle">⚡ Speed: 0.5x</button>
-          <button class="tool-btn" id="btn-trigger-elim">💥 Test Elim</button>
+          <button class="tool-btn" id="btn-drawer-install" style="border-color:#34d399; color:#34d399;">📲 Install App</button>
         </div>
 
         <!-- StreamElements Realtime Chat Integration Section -->
@@ -286,6 +305,72 @@
 
   <!-- Audio Player for Background Music (Loops by default) -->
   <audio id="bgm-audio-player" src="/assets/aistudio/CHAOTIC_FUN__CHALLENGE_1_d05e44df.mp3" loop preload="auto" style="display:none;"></audio>
+
+  <!-- PWA MOBILE INSTALLATION MODAL -->
+  <div id="pwa-install-modal" class="pwa-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pwa-modal-title">
+    <div class="pwa-modal-card">
+      <button class="pwa-close-btn" id="btn-pwa-close" aria-label="Close installation modal">&times;</button>
+      
+      <div class="pwa-header">
+        <img src="/pwa-192x192.png" alt="Flags Battle App Icon" class="pwa-app-icon" />
+        <div class="pwa-title-wrap">
+          <h2 id="pwa-modal-title">Install on your Phone</h2>
+          <p class="pwa-subtitle">Respawn Tahmid Flags Battle (Standalone App)</p>
+        </div>
+      </div>
+
+      <!-- Android / Chrome / Edge Native 1-Click Install Flow -->
+      <div id="pwa-native-install-section" class="pwa-section">
+        <button id="btn-pwa-native-install" class="pwa-install-action-btn">
+          <span>📲</span>
+          <span>Install App to Home Screen</span>
+        </button>
+        <p class="pwa-hint">Direct 1-click install for Android, Google Chrome, Samsung Internet & Edge</p>
+      </div>
+
+      <!-- iOS Safari (iPhone / iPad) Step-by-Step Instructions -->
+      <div id="pwa-ios-instructions" class="pwa-section ios-guide-box">
+        <div class="ios-guide-header">
+          <span>🍏</span>
+          <span>iPhone / iPad Installation:</span>
+        </div>
+        <ol class="ios-steps-list">
+          <li>
+            <span class="step-num">1</span>
+            <span>Tap the <strong>Share</strong> button <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> at the bottom of Safari.</span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <span>Scroll down and tap <strong>Add to Home Screen</strong> <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>.</span>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <span>Tap <strong>Add</strong> in the top-right corner. Done!</span>
+          </li>
+        </ol>
+      </div>
+
+      <!-- Open on Phone via QR / Share Link -->
+      <div class="pwa-section pwa-share-section">
+        <div class="pwa-share-header">
+          <span>🔗</span>
+          <span>Open Direct on your Mobile Browser:</span>
+        </div>
+        <div class="pwa-share-input-wrap">
+          <input type="text" id="pwa-share-url" readonly class="pwa-url-input" />
+          <button id="btn-pwa-copy-url" class="pwa-copy-btn" title="Copy URL">Copy Link</button>
+        </div>
+        <span id="pwa-copy-feedback" class="pwa-copy-feedback"></span>
+      </div>
+
+      <div class="pwa-features-row">
+        <span>⚡ Fullscreen 60 FPS</span>
+        <span>🎵 Seamless BGM</span>
+        <span>🎙️ Female Voice</span>
+        <span>📴 Works Offline</span>
+      </div>
+    </div>
+  </div>
 
   <!-- Main Modular Application Script -->
   <script type="module" src="/app.js"></script>

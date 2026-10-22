@@ -1637,7 +1637,129 @@ function setupControls() {
 }
 
 // ==========================================================
-// 11. INITIALIZATION ON LOAD
+// 11. PROGRESSIVE WEB APP (PWA) INSTALLATION CONTROLLER
+// ==========================================================
+let deferredPrompt = null;
+
+function initPWAInstallation() {
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        console.log('PWA ServiceWorker registered with scope:', reg.scope);
+      }).catch((err) => {
+        console.warn('PWA ServiceWorker registration error:', err);
+      });
+    });
+  }
+
+  // Detect standalone display mode (already installed on phone)
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+    (window.navigator && window.navigator.standalone === true);
+
+  if (isStandalone) {
+    document.body.classList.add('is-standalone');
+  }
+
+  // Detect iOS Safari / WebKit
+  const userAgent = (navigator.userAgent || '').toLowerCase();
+  const isIOS = /iphone|ipad|ipod/.test(userAgent);
+
+  const modal = document.getElementById('pwa-install-modal');
+  const btnClose = document.getElementById('btn-pwa-close');
+  const btnHeaderInstall = document.getElementById('btn-pwa-install-header');
+  const btnDrawerInstall = document.getElementById('btn-drawer-install');
+  const btnNativeInstall = document.getElementById('btn-pwa-native-install');
+  const nativeSection = document.getElementById('pwa-native-install-section');
+  const iosSection = document.getElementById('pwa-ios-instructions');
+  const shareUrlInput = document.getElementById('pwa-share-url');
+  const btnCopyUrl = document.getElementById('btn-pwa-copy-url');
+  const copyFeedback = document.getElementById('pwa-copy-feedback');
+
+  if (shareUrlInput) {
+    shareUrlInput.value = window.location.href;
+  }
+
+  // Capture Chromium/Android beforeinstallprompt event
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (nativeSection) nativeSection.style.display = 'block';
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    document.body.classList.add('is-standalone');
+    if (modal) modal.classList.add('hidden');
+    audio.speak("Respawn Tahmid Flags Battle successfully installed to your home screen!");
+  });
+
+  function openInstallModal() {
+    if (!modal) return;
+    if (shareUrlInput) {
+      shareUrlInput.value = window.location.href;
+    }
+    modal.classList.remove('hidden');
+
+    if (isIOS) {
+      if (nativeSection) nativeSection.style.display = 'none';
+      if (iosSection) iosSection.style.display = 'block';
+    } else if (deferredPrompt) {
+      if (nativeSection) nativeSection.style.display = 'block';
+    }
+  }
+
+  function closeInstallModal() {
+    if (modal) modal.classList.add('hidden');
+  }
+
+  if (btnHeaderInstall) btnHeaderInstall.addEventListener('click', openInstallModal);
+  if (btnDrawerInstall) btnDrawerInstall.addEventListener('click', openInstallModal);
+  if (btnClose) btnClose.addEventListener('click', closeInstallModal);
+
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeInstallModal();
+    });
+  }
+
+  if (btnNativeInstall) {
+    btnNativeInstall.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          closeInstallModal();
+        }
+        deferredPrompt = null;
+      } else if (isIOS) {
+        if (iosSection) iosSection.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        // Fallback for browsers that require menu action
+        if (iosSection) iosSection.style.display = 'block';
+      }
+    });
+  }
+
+  if (btnCopyUrl && shareUrlInput) {
+    btnCopyUrl.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(shareUrlInput.value);
+        if (copyFeedback) copyFeedback.textContent = "✓ Link copied! Open in your phone browser to install.";
+      } catch (_) {
+        shareUrlInput.select();
+        document.execCommand('copy');
+        if (copyFeedback) copyFeedback.textContent = "✓ Link copied! Open in your phone browser to install.";
+      }
+      setTimeout(() => {
+        if (copyFeedback) copyFeedback.textContent = "";
+      }, 3500);
+    });
+  }
+}
+
+// ==========================================================
+// 12. INITIALIZATION ON LOAD
 // ==========================================================
 window.addEventListener('DOMContentLoaded', () => {
   initStreamElements();
@@ -1647,6 +1769,8 @@ window.addEventListener('DOMContentLoaded', () => {
   startEngagementEngine();
   updateChatSupportUI();
   setupControls();
+  initPWAInstallation();
 
   requestAnimationFrame(mainLoop);
 });
+
