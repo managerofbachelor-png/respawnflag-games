@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Respawn Tahmid Flags Battle - 9:16 Live Stream Arena</title>
+  <meta name="description" content="Respawn Tahmid Flags Battle 9:16 Live Stream Overlay with Matter.js physics, dual audio BGM, and female voice commentary on YouTube Channel Respawn Tahmid." />
+  <meta property="og:title" content="Respawn Tahmid Flags Battle" />
+  <meta property="og:description" content="60 FPS Physics Battle Royale with Lo-Fi BGM and Voice Commentary on Respawn Tahmid." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Google Fonts: Montserrat & Oswald for Authentic Stream Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,600;0,700;0,800;0,900;1,800&family=Oswald:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Matter.js 2D Physics Engine CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+
+  <!-- Socket.io for StreamElements Realtime Chat Integration -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+
+  <!-- Firebase v10 SDK scripts for Realtime Database -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    window.FirebaseSDK = { initializeApp, getDatabase, ref, onValue, set, update };
+  </script>
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <!-- Full Screen Stream Wrapper for Desktop/Mobile Framing -->
+  <div id="stream-wrapper">
+
+    <!-- Strict 9:16 Mobile Live Stream Overlay Container -->
+    <main id="arena-container" role="main" aria-label="Flags War Arena Live Stream">
+      
+      <!-- Dual Gladiator / Footballer Background Art Silhouettes -->
+      <div class="stadium-gladiator-left" aria-hidden="true"></div>
+      <div class="stadium-gladiator-right" aria-hidden="true"></div>
+
+      <!-- HEADER SECTION -->
+      <header class="stream-header">
+        <div class="title-group">
+          <span class="title-main">RESPAWN TAHMID</span>
+          <span class="title-accent">FLAGS BATTLE</span>
+        </div>
+
+        <div class="badge-group">
+          <!-- Total Countries Pill -->
+          <div class="stat-pill" aria-label="Total Countries: 64">
+            <span class="stat-label">COUNTRIES</span>
+            <span class="stat-value" id="stat-total-countries">64</span>
+          </div>
+
+          <!-- Remaining Countries Pill -->
+          <div class="stat-pill" aria-label="Remaining Countries">
+            <span class="stat-label">REMAINING</span>
+            <span class="stat-value remaining" id="stat-remaining-countries">64</span>
+          </div>
+
+          <!-- Countdown / Alert Magenta Circle -->
+          <div class="alert-circle" id="alert-circle-badge" aria-label="Hazard Countdown">
+            <span class="alert-value" id="alert-circle-timer">5</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- UPPER OVERLAY PANELS (Chat Support, Center Live Question, Save Country Perks) -->
+      <section class="upper-overlay-section" aria-label="Live Stream Status and Support Leaderboard">
+        
+        <!-- Left HUD: Chat Support Live Leaderboard -->
+        <div class="hud-panel chat-support-panel">
+          <div class="chat-support-header">
+            <span class="chat-support-title">CHAT SUPPORT</span>
+            <span class="live-badge">
+              <span class="live-dot"></span>LIVE
+            </span>
+          </div>
+          <div class="leaderboard-list" id="chat-support-list">
+            <!-- Dynamically populated top 3 countries -->
+            <div class="leaderboard-row">
+              <span class="rank-num">1</span>
+              <img src="https://flagcdn.com/w40/in.png" alt="India" class="flag-icon-mini" />
+              <span class="country-name-mini">INDIA</span>
+              <span class="vote-tally">18 💬</span>
+              <span class="shield-progress">🛡️18/20</span>
+            </div>
+            <div class="leaderboard-row">
+              <span class="rank-num">2</span>
+              <img src="https://flagcdn.com/w40/bd.png" alt="Bangladesh" class="flag-icon-mini" />
+              <span class="country-name-mini">BANGLADESH</span>
+              <span class="vote-tally">10 💬</span>
+              <span class="shield-progress">🛡️10/20</span>
+            </div>
+            <div class="leaderboard-row">
+              <span class="rank-num">3</span>
+              <img src="https://flagcdn.com/w40/np.png" alt="Nepal" class="flag-icon-mini" />
+              <span class="country-name-mini">NEPAL</span>
+              <span class="vote-tally">4 💬</span>
+              <span class="shield-progress">🛡️4/20</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center HUD: Stream Cycle & Live Audience Hook -->
+        <div class="center-title-container">
+          <div class="cycle-pill" id="cycle-indicator">• CYCLE 199 • LIVE</div>
+          <div class="hero-question-1">WHERE ARE</div>
+          <div class="hero-question-2">YOU FROM?</div>
+        </div>
+
+        <!-- Right HUD: Save Your Country Perks Tracker -->
+        <div class="hud-panel perks-panel">
+          <div class="perks-title">SAVE YOUR COUNTRY</div>
+          <div class="perk-line">
+            <span>💬 20 chats</span>
+            <span class="perk-highlight">🛡️ SHIELD</span>
+          </div>
+          <div class="perk-line">
+            <span>💬 40 if out</span>
+            <span class="perk-revive">♻️ REVIVE</span>
+          </div>
+          <div class="perk-line">
+            <span>★ Super Chat</span>
+            <span class="perk-highlight">0/0</span>
+          </div>
+          <div class="perk-line">
+            <span>🔔 Subscribe</span>
+            <span class="perk-highlight" style="color:#fde047">FREE POWER</span>
+          </div>
+          <div class="perk-line">
+            <span>💎 50 Jewels</span>
+            <span class="perk-jewels">0/0</span>
+          </div>
+          <div class="perk-line" style="font-size:6.5px; color:#94a3b8; justify-content:center; margin-top:1px;">
+            <span>★ no limit • 👤 left 30/30</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- PERIODIC VIEWER ENGAGEMENT CALLOUT BANNER (Cycles every 10s) -->
+      <div id="engagement-callout-banner" class="engagement-banner" aria-live="polite">
+        <span class="engagement-icon">📢</span>
+        <span id="engagement-callout-text" class="engagement-text">Which country are you watching from? Comment below!</span>
+      </div>
+
+      <!-- MAIN WHEEL PHYSICS CANVAS ARENA -->
+      <section class="arena-viewport" id="arena-viewport" aria-label="Circular Physics Arena">
+        <canvas id="physics-canvas" data-testid="physics-canvas"></canvas>
+
+        <!-- Dynamic In-Arena Shield Announcement Banner -->
+        <div id="shield-announcement" aria-live="polite">
+          SHIELDED • CHINA
+        </div>
+
+        <!-- Pause Overlay Watermark -->
+        <div id="pause-overlay-badge" class="pause-badge hidden">
+          ⏸️ MATCH PAUSED
+        </div>
+
+        <!-- Dynamic Knockout Slide-in Notification -->
+        <div id="elimination-popup" aria-live="assertive">
+          <img src="https://flagcdn.com/w80/ug.png" id="elim-popup-flag" alt="Eliminated Country" class="elim-flag-large" />
+          <div class="elim-text-group">
+            <span class="elim-badge-tag">ELIMINATED</span>
+            <span class="elim-country-title" id="elim-popup-name">UGANDA</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- STREAM MATCH & AUDIO CONTROLS OVERLAY BAR -->
+      <div class="stream-control-bar" role="toolbar" aria-label="Match Cycle and Audio Controls">
+        <button class="ctrl-btn play-pause-btn" id="ctrl-play-pause" title="Start or Pause Cycle">
+          <span id="ctrl-play-icon">⏸️</span>
+          <span id="ctrl-play-label">PAUSE</span>
+        </button>
+        <button class="ctrl-btn reset-btn" id="ctrl-reset-match" title="Reset Arena Match">
+          <span>🔄</span>
+          <span>RESET</span>
+        </button>
+        <button class="ctrl-btn speed-btn" id="ctrl-toggle-speed" title="Adjust Simulation Speed (0.5x, 1x, 1.5x, 2x)">
+          <span>⚡</span>
+          <span id="ctrl-speed-label">0.5x</span>
+        </button>
+        <button class="ctrl-btn bgm-btn active" id="ctrl-toggle-bgm" title="Toggle Lo-Fi Ambient Background Music">
+          <span>🎵</span>
+          <span id="ctrl-bgm-label">BGM: ON</span>
+        </button>
+        <button class="ctrl-btn loop-btn active" id="ctrl-toggle-loop" title="Toggle BGM Loop Mode">
+          <span>🔁</span>
+          <span id="ctrl-loop-label">LOOP: ON</span>
+        </button>
+        <div class="bgm-volume-wrapper" title="BGM Volume">
+          <input type="range" id="ctrl-bgm-slider" min="0" max="100" value="45" class="bgm-slider" aria-label="Background Music Volume" />
+        </div>
+        <button class="ctrl-btn voice-btn active" id="ctrl-toggle-voice" title="Toggle Female Commentary Voice">
+          <span>🎙️</span>
+          <span id="ctrl-voice-label">VOICE: ON</span>
+        </button>
+      </div>
+
+      <!-- BOTTOM SECTION: ELIMINATED GALLERY & AUDIENCE ENGAGEMENT -->
+      <footer class="bottom-stream-section">
+        <div class="eliminated-header">ALL ELIMINATED</div>
+
+        <!-- Horizontal Scrolling Flag Gallery -->
+        <div class="eliminated-carousel-wrapper" id="elim-carousel" tabindex="0" aria-label="Eliminated countries list">
+          <div class="eliminated-flags-track" id="eliminated-flags-track">
+            <!-- Dynamically populated eliminated flags -->
+          </div>
+        </div>
+
+        <!-- Progress Tracker Bar -->
+        <div class="progress-container">
+          <div class="progress-bar-bg" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="64">
+            <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
+          </div>
+          <span class="progress-counter-text" id="progress-counter-text">0 / 64 ELIMINATED</span>
+        </div>
+
+        <!-- Audience Engagement Call To Action Button -->
+        <button class="cta-stream-button" id="like-country-btn" aria-label="Like if you see your country flag">
+          <span>👍</span>
+          <span>LIKE IF YOU SEE YOUR COUNTRY FLAG</span>
+        </button>
+      </footer>
+
+      <!-- Audio Enable Overlay (Bypasses Browser Autoplay Restrictions) -->
+      <button id="audio-enable-pill" aria-label="Unmute commentary and sound effects">
+        <span>🔊</span>
+        <span>START STREAM AUDIO & BGM</span>
+      </button>
+
+    </main>
+
+    <!-- STREAMER OPERATOR & SIMULATION CONTROL DOCK (Collapsible for Clean Live Stream Overlay) -->
+    <aside id="streamer-tools" class="collapsed" aria-label="Streamer Operator Panel">
+      <div class="streamer-header-toggle" id="toggle-tools-btn" role="button" tabindex="0">
+        <span>⚙️ Streamer Ops & Custom Song</span>
+        <span id="tools-chevron">▲</span>
+      </div>
+
+      <div class="tools-body">
+        <div class="tool-controls-grid">
+          <button class="tool-btn" id="btn-toggle-chat-sim">🤖 Sim Chat: ON</button>
+          <button class="tool-btn" id="btn-force-shield">🛡️ Shield Top</button>
+          <button class="tool-btn" id="btn-speed-toggle">⚡ Speed: 0.5x</button>
+          <button class="tool-btn" id="btn-trigger-elim">💥 Test Elim</button>
+        </div>
+
+        <!-- StreamElements Realtime Chat Integration Section -->
+        <div class="streamelements-row" style="margin-top:6px; background:rgba(0,243,255,0.06); border:1px solid rgba(0,243,255,0.25); border-radius:6px; padding:6px; display:flex; flex-direction:column; gap:4px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:8px; font-weight:800; color:#ffd200;">STREAMELEMENTS CHAT:</span>
+            <span id="se-status-badge" style="font-size:7.5px; font-weight:800; color:#34d399; background:rgba(16,185,129,0.2); padding:1px 4px; border-radius:4px;">🟢 READY</span>
+          </div>
+          <div style="display:flex; gap:3px;">
+            <input type="text" id="se-token-input" class="tool-input" value="dlcdb4E6wvj6PARvsNtsJXcyUcQgj0zpwm0AyJsT8vXpM9Oq" placeholder="StreamElements JWT Token" style="font-size:8px; padding:2px 4px;" title="StreamElements JWT Token from Overlay URL" />
+            <button class="tool-btn" id="btn-connect-se" style="font-size:7.5px; padding:2px 5px; flex:0 0 auto;">Sync</button>
+            <button class="tool-btn" id="btn-test-se-chat" style="font-size:7.5px; padding:2px 5px; flex:0 0 auto;">Simulate</button>
+          </div>
+        </div>
+
+        <!-- Custom BGM Audio File Upload Option & Loop Controls -->
+        <div class="custom-song-row" style="margin-top:6px; display:flex; flex-direction:column; gap:4px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="font-size:8px; font-weight:700; color:#00f3ff; text-transform:uppercase;">Custom BGM Song (MP3):</label>
+            <button class="tool-btn" id="btn-default-song" style="font-size:8px; padding:2px 5px;" title="Reset to Default Song">🎵 Default Song</button>
+          </div>
+          <input type="file" id="custom-audio-file" accept="audio/*" class="tool-input" style="font-size:9px; padding:2px;" />
+        </div>
+
+        <div class="tool-input-row" style="margin-top:6px;">
+          <input type="text" id="manual-chat-input" class="tool-input" placeholder="Type country to vote (e.g. India)" aria-label="Country chat vote input" />
+          <button class="tool-btn" id="btn-send-chat" style="flex:0 0 auto;">Vote</button>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Audio Player for Background Music (Loops by default) -->
+  <audio id="bgm-audio-player" src="/assets/aistudio/CHAOTIC_FUN__CHALLENGE_1_d05e44df.mp3" loop preload="auto" style="display:none;"></audio>
+
+  <!-- Main Modular Application Script -->
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

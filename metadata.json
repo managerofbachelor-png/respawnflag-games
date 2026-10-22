@@ -1,0 +1,6 @@
+{
+  "name": "Flags War Arena",
+  "description": "Interactive 9:16 vertical 60 FPS live stream physics battle royale featuring Matter.js circular arena, 64 country flag physics, female voice commentary, procedural audio SFX, chat voting perks, and Firebase sync for YouTube streaming.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
